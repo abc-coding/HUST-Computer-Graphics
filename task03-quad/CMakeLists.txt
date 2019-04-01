@@ -48,9 +48,3 @@ if(MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES 
         VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 endif()
-
-add_custom_command(TARGET ${PROJECT_NAME}
-                   POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/res
-                   $<TARGET_FILE_DIR:${PROJECT_NAME}>/res)
