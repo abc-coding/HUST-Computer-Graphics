@@ -1,5 +1,5 @@
 /***
-* Task Á£×ÓÏµÍ³
+* Task ç²’å­ç³»ç»Ÿ
 */
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -9,56 +9,56 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../include/Shader.h"
-#include "../include/camera.h"
-#include "../include/texture.h"
+#include "../include/Camera.h"
+#include "../include/Texture.h"
 
 #include <iostream>
 #include <string>
-#include <algorithm> //ÅÅĞò
+#include <algorithm> //æ’åº
 using namespace std;
 
-// ´°¿Ú´óĞ¡µ÷ÕûµÄ»Øµ÷º¯Êı(µ±´°¿Ú´óĞ¡¸Ä±äÊ±£¬ÊÓ¿ÚÒ²Òª¸Ä±ä)
+// çª—å£å¤§å°è°ƒæ•´çš„å›è°ƒå‡½æ•°(å½“çª—å£å¤§å°æ”¹å˜æ—¶ï¼Œè§†å£ä¹Ÿè¦æ”¹å˜)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-// Êó±ê¿ØÖÆ»Øµ÷
+// é¼ æ ‡æ§åˆ¶å›è°ƒ
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-// ¹öÂÖ¿ØÖÆ»Øµ÷
+// æ»šè½®æ§åˆ¶å›è°ƒ
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-// ¼üÅÌ¿ØÖÆ»Øµ÷
+// é”®ç›˜æ§åˆ¶å›è°ƒ
 void processInput(GLFWwindow *window);
 
-// ÆÁÄ»¿í£¬¸ß
+// å±å¹•å®½ï¼Œé«˜
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-Camera camera(glm::vec3(0.0f, 0.0f, 5.0f)); //ÉãÏñ»úÎ»ÖÃ
+Camera camera(glm::vec3(0.0f, 0.0f, 5.0f)); //æ‘„åƒæœºä½ç½®
 
-float lastX = (float)SCR_WIDTH / 2.0, lastY = (float)SCR_HEIGHT / 2.0; // ÉèÖÃÊó±ê³õÊ¼Î»ÖÃÎªÆÁÄ»ÖĞĞÄ
+float lastX = (float)SCR_WIDTH / 2.0, lastY = (float)SCR_HEIGHT / 2.0; // è®¾ç½®é¼ æ ‡åˆå§‹ä½ç½®ä¸ºå±å¹•ä¸­å¿ƒ
 bool firstMouse = true;
 
-float deltaTime = 0.0f; // µ±Ç°Ö¡ÓëÉÏÒ»Ö¡µÄÊ±¼ä²î
-float lastFrame = 0.0f; // ÉÏÒ»Ö¡µÄÊ±¼ä
+float deltaTime = 0.0f; // å½“å‰å¸§ä¸ä¸Šä¸€å¸§çš„æ—¶é—´å·®
+float lastFrame = 0.0f; // ä¸Šä¸€å¸§çš„æ—¶é—´
 
-// Á£×Ó
+// ç²’å­
 struct Particle {
 	glm::vec3 pos, speed;
-	unsigned char r, g, b, a; // ÑÕÉ«
+	unsigned char r, g, b, a; // é¢œè‰²
 	float size, angle, weight;
-	float life; // Á£×ÓµÄÊ£ÓàÉúÃü£¬Ğ¡ÓÚ0±íÊ¾ÏûÍö.
-	float cameradistance; // *Squared* ¾àÀëÉãÏñÍ·µÄ¾ßÌå£¬ Èç¹û dead : -1.0f
+	float life; // ç²’å­çš„å‰©ä½™ç”Ÿå‘½ï¼Œå°äº0è¡¨ç¤ºæ¶ˆäº¡.
+	float cameradistance; // *Squared* è·ç¦»æ‘„åƒå¤´çš„å…·ä½“ï¼Œ å¦‚æœ dead : -1.0f
 
 	bool operator<(const Particle& that) const {
-		// ÄæĞòÅÅĞò£¬ Ô¶µÄÁ£×ÓÅÅÔÚÇ°Ãæ
+		// é€†åºæ’åºï¼Œ è¿œçš„ç²’å­æ’åœ¨å‰é¢
 		return this->cameradistance > that.cameradistance;
 	}
 };
 
-const int MaxParticles = 1000; //×î´óÁ£×ÓÊı
-const float spread = 3.0f; //Á£×ÓÀ©É¢³Ì¶È
-const float life = 5.0; //Á£×ÓµÄ´æ»îÊ±¼ä
+const int MaxParticles = 1000; //æœ€å¤§ç²’å­æ•°
+const float spread = 3.0f; //ç²’å­æ‰©æ•£ç¨‹åº¦
+const float life = 5.0; //ç²’å­çš„å­˜æ´»æ—¶é—´
 Particle ParticlesContainer[MaxParticles];
 int LastUsedParticle = 0;
 
-// ÔÚÁ£×ÓÊı×éÖĞ£¬ÕÒµ½ÉúÃüÏûÍöµÄÁ£×Ó
+// åœ¨ç²’å­æ•°ç»„ä¸­ï¼Œæ‰¾åˆ°ç”Ÿå‘½æ¶ˆäº¡çš„ç²’å­
 int FindUnusedParticle() {
 	for (int i = LastUsedParticle; i<MaxParticles; i++) {
 		if (ParticlesContainer[i].life < 0) {
@@ -75,21 +75,21 @@ int FindUnusedParticle() {
 	return 0;
 }
 
-// ¸ù¾İcameradistance¸øÁ£×ÓÅÅĞò
+// æ ¹æ®cameradistanceç»™ç²’å­æ’åº
 void SortParticles() {
 	std::sort(&ParticlesContainer[0], &ParticlesContainer[MaxParticles]);
 }
 
 int main()
 {
-	// ---------------------³õÊ¼»¯--------------------------
-	// glfw³õÊ¼»¯£¬²ÉÓÃµÄGL°æ±¾Îª3.3ºËĞÄ°æ±¾
+	// ---------------------åˆå§‹åŒ–--------------------------
+	// glfwåˆå§‹åŒ–ï¼Œé‡‡ç”¨çš„GLç‰ˆæœ¬ä¸º3.3æ ¸å¿ƒç‰ˆæœ¬
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// ´´½¨GL´°¿Ú
+	// åˆ›å»ºGLçª—å£
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "particle", NULL, NULL);
 	if (window == NULL)
 	{
@@ -98,14 +98,14 @@ int main()
 		return -1;
 	}
 
-	// Ö¸¶¨ÉÏÏÂÎÄÎªµ±Ç°´°¿Ú
+	// æŒ‡å®šä¸Šä¸‹æ–‡ä¸ºå½“å‰çª—å£
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Òş²Ø¹â±ê£¬Êó±êÍ£ÁôÔÚ´°¿ÚÄÚ
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // éšè—å…‰æ ‡ï¼Œé¼ æ ‡åœç•™åœ¨çª—å£å†…
 
-	// ³õÊ¼»¯glad
+	// åˆå§‹åŒ–glad
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -126,7 +126,7 @@ int main()
 
 	GLuint particleTexture = Texture::LoadTextureFromFile("res/texture/xuehua.png");
 
-	// Á£×Ó¶¥µãÎ»ÖÃ
+	// ç²’å­é¡¶ç‚¹ä½ç½®
 	static const GLfloat g_vertex_buffer_data[] = {
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
@@ -134,42 +134,42 @@ int main()
 		0.5f,  0.5f, 0.0f,
 	};
 
-	//  Á£×ÓµÄ¶¥µã×ø±ê £¨Ã¿¸öÁ£×Ó¶¼Ò»Ñù£©
+	//  ç²’å­çš„é¡¶ç‚¹åæ ‡ ï¼ˆæ¯ä¸ªç²’å­éƒ½ä¸€æ ·ï¼‰
 	GLuint billboard_vertex_buffer;
 	glGenBuffers(1, &billboard_vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-	//  Á£×ÓµÄÎ»ÖÃºÍ´óĞ¡
+	//  ç²’å­çš„ä½ç½®å’Œå¤§å°
 	GLuint particles_position_buffer;
 	glGenBuffers(1, &particles_position_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);//³õÊ¼»¯ÎªNULL£¬ºóĞø¸ù¾İÁ£×ÓµÄÊôĞÔ£¬½øĞĞÌî³ä
+	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);//åˆå§‹åŒ–ä¸ºNULLï¼Œåç»­æ ¹æ®ç²’å­çš„å±æ€§ï¼Œè¿›è¡Œå¡«å……
 
-	//  °üº¬ÁËÁ£×ÓµÄ ÑÕÉ«
+	//  åŒ…å«äº†ç²’å­çš„ é¢œè‰²
 	GLuint particles_color_buffer;
 	glGenBuffers(1, &particles_color_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
-	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);//³õÊ¼»¯ÎªNULL£¬ºóĞø¸ù¾İÁ£×ÓµÄÊôĞÔ£¬½øĞĞÌî³ä
+	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);//åˆå§‹åŒ–ä¸ºNULLï¼Œåç»­æ ¹æ®ç²’å­çš„å±æ€§ï¼Œè¿›è¡Œå¡«å……
 
-																							// ¿ªÆôÉî¶È²âÊÔ
+																							// å¼€å¯æ·±åº¦æµ‹è¯•
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	// ×ÅÉ«Æ÷
+	// ç€è‰²å™¨
 	Shader shader("res/shader/particle_system.vs", "res/shader/particle_system.fs");
 
 	lastFrame = glfwGetTime();
 	while (!glfwWindowShouldClose(window))
 	{
-		// ÔÚÃ¿Ò»Ö¡ÖĞ¼ÆËã³öĞÂµÄdeltaTime
+		// åœ¨æ¯ä¸€å¸§ä¸­è®¡ç®—å‡ºæ–°çš„deltaTime
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		// ÊäÈë¿ØÖÆ
+		// è¾“å…¥æ§åˆ¶
 		processInput(window);
 
-		// Çå³ıÑÕÉ«ºÍÉî¶È»º³å
+		// æ¸…é™¤é¢œè‰²å’Œæ·±åº¦ç¼“å†²
 		glClearColor(0.0f, 57.0f / 255, 92.0f / 255, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -178,15 +178,15 @@ int main()
 		glm::vec3 CameraPosition = camera.Position;
 		glm::mat4 ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
 
-		// ÏûÍö¶àÉÙÁ£×Ó£¬²úÉú¶àÉÙÁ£×Ó
+		// æ¶ˆäº¡å¤šå°‘ç²’å­ï¼Œäº§ç”Ÿå¤šå°‘ç²’å­
 		int newparticles = deltaTime / life * MaxParticles;
 
 		for (int i = 0; i<newparticles; i++) {
 			int particleIndex = FindUnusedParticle();
 			ParticlesContainer[particleIndex].life = life;
-			ParticlesContainer[particleIndex].pos = glm::vec3(0, 0, -20.0f); //Á£×ÓÆğµã
-			glm::vec3 maindir = glm::vec3(0.0f, 10.0f, 0.0f); //Ö÷Òª·½Ïò
-			//²úÉúËæ»úµÄ·½ÏòÆ«²î
+			ParticlesContainer[particleIndex].pos = glm::vec3(0, 0, -20.0f); //ç²’å­èµ·ç‚¹
+			glm::vec3 maindir = glm::vec3(0.0f, 10.0f, 0.0f); //ä¸»è¦æ–¹å‘
+			//äº§ç”Ÿéšæœºçš„æ–¹å‘åå·®
 			glm::vec3 randomdir = glm::vec3(
 				(rand() % 2000 - 1000.0f) / 1000.0f, //[-1,1]
 				(rand() % 2000 - 1000.0f) / 1000.0f,
@@ -195,7 +195,7 @@ int main()
 
 			ParticlesContainer[particleIndex].speed = maindir + randomdir * spread;
 
-			// ²úÉúËæ»úµÄÑÕÉ«¡¢Í¸Ã÷¶È¡¢´óĞ¡
+			// äº§ç”Ÿéšæœºçš„é¢œè‰²ã€é€æ˜åº¦ã€å¤§å°
 			ParticlesContainer[particleIndex].r = rand() % 256; 
 			ParticlesContainer[particleIndex].g = rand() % 256;
 			ParticlesContainer[particleIndex].b = rand() % 256;
@@ -203,18 +203,18 @@ int main()
 			ParticlesContainer[particleIndex].size = (rand() % 1000) / 5000.0f + 0.6f; //[0.6, 0.8]
 		}
 
-		// Ä£ÄâËùÓĞµÄÁ£×Ó
+		// æ¨¡æ‹Ÿæ‰€æœ‰çš„ç²’å­
 		int ParticlesCount = 0;
 		for (int i = 0; i<MaxParticles; i++) {
-			Particle& p = ParticlesContainer[i]; // ÒıÓÃ
+			Particle& p = ParticlesContainer[i]; // å¼•ç”¨
 			if (p.life > 0.0f) {
 				p.life -= deltaTime;
 				if (p.life > 0.0f) {
-					// Ä£Äâ¼òµ¥ÎïÀíĞ§¹û£ºÖ»ÓĞÖØÁ¦£¬Ã»ÓĞÅö×²
+					// æ¨¡æ‹Ÿç®€å•ç‰©ç†æ•ˆæœï¼šåªæœ‰é‡åŠ›ï¼Œæ²¡æœ‰ç¢°æ’
 					p.speed += glm::vec3(0.0f, -9.81f, 0.0f) * (float)deltaTime * 0.5f;
 					p.pos += p.speed * (float)deltaTime;
 					p.cameradistance = glm::length(p.pos - CameraPosition);
-					//Ìî³äÊı¾İ
+					//å¡«å……æ•°æ®
 					g_particule_position_size_data[4 * ParticlesCount + 0] = p.pos.x;
 					g_particule_position_size_data[4 * ParticlesCount + 1] = p.pos.y;
 					g_particule_position_size_data[4 * ParticlesCount + 2] = p.pos.z;
@@ -225,7 +225,7 @@ int main()
 					g_particule_color_data[4 * ParticlesCount + 3] = p.a;
 				}
 				else {
-					//ÒÑ¾­ÏûÍöµÄÁ£×Ó£¬ÔÚµ÷ÓÃSortParticles()Ö®ºó£¬»á±»·ÅÔÚÊı×éµÄ×îºó
+					//å·²ç»æ¶ˆäº¡çš„ç²’å­ï¼Œåœ¨è°ƒç”¨SortParticles()ä¹‹åï¼Œä¼šè¢«æ”¾åœ¨æ•°ç»„çš„æœ€å
 					p.cameradistance = -1.0f;
 				}
 				ParticlesCount++;
@@ -242,7 +242,7 @@ int main()
 		glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, ParticlesCount * sizeof(GLubyte) * 4, g_particule_color_data);
 
-		//¿ªÆô»ìºÏ
+		//å¼€å¯æ··åˆ
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -252,13 +252,13 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, particleTexture);
 		shader.SetInt("myTextureSampler", 0);
 
-		// ÉãÏñÍ·µÄÓÒ·½Ïò
+		// æ‘„åƒå¤´çš„å³æ–¹å‘
 		shader.SetVec3("CameraRight_worldspace", ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]);
-		// ÉãÏñÍ·µÄÉÏ·½Ïò
+		// æ‘„åƒå¤´çš„ä¸Šæ–¹å‘
 		shader.SetVec3("CameraUp_worldspace", ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]);
 		shader.SetMat4("VP", ViewProjectionMatrix);
 
-		// Á£×ÓµÄ¶¥µã×ø±ê
+		// ç²’å­çš„é¡¶ç‚¹åæ ‡
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
 		glVertexAttribPointer(
@@ -270,7 +270,7 @@ int main()
 			(void*)0            
 		);
 
-		// Á£×ÓµÄÖĞĞÄÎ»ÖÃ
+		// ç²’å­çš„ä¸­å¿ƒä½ç½®
 		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
 		glVertexAttribPointer(
@@ -282,7 +282,7 @@ int main()
 			(void*)0                          
 		);
 
-		// Á£×ÓµÄÑÕÉ«
+		// ç²’å­çš„é¢œè‰²
 		glEnableVertexAttribArray(2);
 		glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
 		glVertexAttribPointer(
@@ -294,9 +294,9 @@ int main()
 			(void*)0                          
 		);
 
-		glVertexAttribDivisor(0, 0); // Á£×Ó¶¥µã×ø±ê : ×ÜÊÇÖØÓÃÏàÍ¬µÄ 4 ¸ö¶¥µã×ø±ê£¬ËùÒÔµÚ¶ş¸ö²ÎÊıÊÇ 0
-		glVertexAttribDivisor(1, 1); // Á£×ÓµÄÖĞĞÄÎ»ÖÃºÍ´óĞ¡£¬Ã¿Ò»¸öÁ£×Ó²»Í¬£¬ËùÒÔµÚ¶ş¸ö²ÎÊıÊÇ 1
-		glVertexAttribDivisor(2, 1); // Á£×ÓµÄÑÕÉ«£¬Ã¿Ò»¸öÁ£×Ó²»Í¬£¬ËùÒÔµÚ¶ş¸ö²ÎÊıÊÇ 1
+		glVertexAttribDivisor(0, 0); // ç²’å­é¡¶ç‚¹åæ ‡ : æ€»æ˜¯é‡ç”¨ç›¸åŒçš„ 4 ä¸ªé¡¶ç‚¹åæ ‡ï¼Œæ‰€ä»¥ç¬¬äºŒä¸ªå‚æ•°æ˜¯ 0
+		glVertexAttribDivisor(1, 1); // ç²’å­çš„ä¸­å¿ƒä½ç½®å’Œå¤§å°ï¼Œæ¯ä¸€ä¸ªç²’å­ä¸åŒï¼Œæ‰€ä»¥ç¬¬äºŒä¸ªå‚æ•°æ˜¯ 1
+		glVertexAttribDivisor(2, 1); // ç²’å­çš„é¢œè‰²ï¼Œæ¯ä¸€ä¸ªç²’å­ä¸åŒï¼Œæ‰€ä»¥ç¬¬äºŒä¸ªå‚æ•°æ˜¯ 1
 
 		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, ParticlesCount);
 
