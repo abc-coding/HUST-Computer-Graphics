@@ -1,5 +1,5 @@
 /***
-* Task Á£×ÓÏµÍ³ 1
+* Task ç²’å­ç³»ç»Ÿ 1
 */
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -9,57 +9,57 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../include/Shader.h"
-#include "../include/camera.h"
-#include "../include/texture.h"
+#include "../include/Camera.h"
+#include "../include/Texture.h"
 
 #include <iostream>
 #include <string>
-#include <algorithm> //ÅÅĞò
+#include <algorithm> //æ’åº
 using namespace std;
 
-// ´°¿Ú´óĞ¡µ÷ÕûµÄ»Øµ÷º¯Êı(µ±´°¿Ú´óĞ¡¸Ä±äÊ±£¬ÊÓ¿ÚÒ²Òª¸Ä±ä)
+// çª—å£å¤§å°è°ƒæ•´çš„å›è°ƒå‡½æ•°(å½“çª—å£å¤§å°æ”¹å˜æ—¶ï¼Œè§†å£ä¹Ÿè¦æ”¹å˜)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-// Êó±ê¿ØÖÆ»Øµ÷
+// é¼ æ ‡æ§åˆ¶å›è°ƒ
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-// ¹öÂÖ¿ØÖÆ»Øµ÷
+// æ»šè½®æ§åˆ¶å›è°ƒ
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-// ¼üÅÌ¿ØÖÆ»Øµ÷
+// é”®ç›˜æ§åˆ¶å›è°ƒ
 void processInput(GLFWwindow *window);
 
-// ÆÁÄ»¿í£¬¸ß
+// å±å¹•å®½ï¼Œé«˜
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-Camera camera(glm::vec3(0.0f, 0.0f, 5.0f)); //ÉãÏñ»úÎ»ÖÃ
+Camera camera(glm::vec3(0.0f, 0.0f, 5.0f)); //æ‘„åƒæœºä½ç½®
 
-float lastX = (float)SCR_WIDTH / 2.0, lastY = (float)SCR_HEIGHT / 2.0; // ÉèÖÃÊó±ê³õÊ¼Î»ÖÃÎªÆÁÄ»ÖĞĞÄ
+float lastX = (float)SCR_WIDTH / 2.0, lastY = (float)SCR_HEIGHT / 2.0; // è®¾ç½®é¼ æ ‡åˆå§‹ä½ç½®ä¸ºå±å¹•ä¸­å¿ƒ
 bool firstMouse = true;
 
-float deltaTime = 0.0f; // µ±Ç°Ö¡ÓëÉÏÒ»Ö¡µÄÊ±¼ä²î
-float lastFrame = 0.0f; // ÉÏÒ»Ö¡µÄÊ±¼ä
+float deltaTime = 0.0f; // å½“å‰å¸§ä¸ä¸Šä¸€å¸§çš„æ—¶é—´å·®
+float lastFrame = 0.0f; // ä¸Šä¸€å¸§çš„æ—¶é—´
 
-// Á£×Ó
+// ç²’å­
 struct Particle {
 	glm::vec3 pos, speed;
-	unsigned char r, g, b, a; // ÑÕÉ«
-	float size; //Á£×Ó´óĞ¡
-	float life; // Á£×ÓµÄÊ£ÓàÉúÃü£¬Ğ¡ÓÚ0±íÊ¾ÏûÍö.
-	float cameradistance; // Á£×ÓºÍÉãÏñÍ·µÄ¾àÀë
+	unsigned char r, g, b, a; // é¢œè‰²
+	float size; //ç²’å­å¤§å°
+	float life; // ç²’å­çš„å‰©ä½™ç”Ÿå‘½ï¼Œå°äº0è¡¨ç¤ºæ¶ˆäº¡.
+	float cameradistance; // ç²’å­å’Œæ‘„åƒå¤´çš„è·ç¦»
 
 	bool operator<(const Particle& that) const {
-		// ÄæĞòÅÅĞò£¬ Ô¶µÄÁ£×ÓÅÅÔÚÇ°Ãæ
+		// é€†åºæ’åºï¼Œ è¿œçš„ç²’å­æ’åœ¨å‰é¢
 		return this->cameradistance > that.cameradistance;
 	}
 };
 
-const int MaxParticles = 200; //×î´óÁ£×ÓÊı
-const float life = 2.0; //Á£×ÓµÄ´æ»îÊ±¼ä
-glm::vec3 startPos = glm::vec3(0.0f, 0, 0.0f); //Á£×ÓÆğµã
-glm::vec3 endPos = glm::vec3(0.0f, 0, 4.8f); //Á£×ÓÖÕµã
+const int MaxParticles = 200; //æœ€å¤§ç²’å­æ•°
+const float life = 2.0; //ç²’å­çš„å­˜æ´»æ—¶é—´
+glm::vec3 startPos = glm::vec3(0.0f, 0, 0.0f); //ç²’å­èµ·ç‚¹
+glm::vec3 endPos = glm::vec3(0.0f, 0, 4.8f); //ç²’å­ç»ˆç‚¹
 Particle ParticlesContainer[MaxParticles];
 
 int LastUsedParticle = 0;
-// ÔÚÁ£×ÓÊı×éÖĞ£¬ÕÒµ½ÉúÃüÏûÍöµÄÁ£×Ó
+// åœ¨ç²’å­æ•°ç»„ä¸­ï¼Œæ‰¾åˆ°ç”Ÿå‘½æ¶ˆäº¡çš„ç²’å­
 int FindUnusedParticle() {
 	for (int i = LastUsedParticle; i<MaxParticles; i++) {
 		if (ParticlesContainer[i].life < 0) {
@@ -76,21 +76,21 @@ int FindUnusedParticle() {
 	return 0;
 }
 
-// ¸ù¾İcameradistance¸øÁ£×ÓÅÅĞò
+// æ ¹æ®cameradistanceç»™ç²’å­æ’åº
 void SortParticles() {
 	std::sort(&ParticlesContainer[0], &ParticlesContainer[MaxParticles]);
 }
 
 int main()
 {
-	// ---------------------³õÊ¼»¯--------------------------
-	// glfw³õÊ¼»¯£¬²ÉÓÃµÄGL°æ±¾Îª3.3ºËĞÄ°æ±¾
+	// ---------------------åˆå§‹åŒ–--------------------------
+	// glfwåˆå§‹åŒ–ï¼Œé‡‡ç”¨çš„GLç‰ˆæœ¬ä¸º3.3æ ¸å¿ƒç‰ˆæœ¬
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// ´´½¨GL´°¿Ú
+	// åˆ›å»ºGLçª—å£
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "particle", NULL, NULL);
 	if (window == NULL)
 	{
@@ -99,14 +99,14 @@ int main()
 		return -1;
 	}
 
-	// Ö¸¶¨ÉÏÏÂÎÄÎªµ±Ç°´°¿Ú
+	// æŒ‡å®šä¸Šä¸‹æ–‡ä¸ºå½“å‰çª—å£
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Òş²Ø¹â±ê£¬Êó±êÍ£ÁôÔÚ´°¿ÚÄÚ
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // éšè—å…‰æ ‡ï¼Œé¼ æ ‡åœç•™åœ¨çª—å£å†…
 
-	// ³õÊ¼»¯glad
+	// åˆå§‹åŒ–glad
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -123,7 +123,7 @@ int main()
 
 	GLuint particleTexture = Texture::LoadTextureFromFile("res/texture/circle.png");
 
-	// Á£×Ó¶¥µãÎ»ÖÃ
+	// ç²’å­é¡¶ç‚¹ä½ç½®
 	static const GLfloat g_vertex_buffer_data[] = {
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
@@ -134,7 +134,7 @@ int main()
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
-	//  Á£×ÓµÄ¶¥µã×ø±ê £¨Ã¿¸öÁ£×Ó¶¼Ò»Ñù£©
+	//  ç²’å­çš„é¡¶ç‚¹åæ ‡ ï¼ˆæ¯ä¸ªç²’å­éƒ½ä¸€æ ·ï¼‰
 	GLuint billboard_vertex_buffer;
 	glGenBuffers(1, &billboard_vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
@@ -142,46 +142,46 @@ int main()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
-	// ×ÅÉ«Æ÷
+	// ç€è‰²å™¨
 	Shader shader("res/shader/particle_system.vs", "res/shader/particle_system.fs");
 
 	lastFrame = glfwGetTime();
 	while (!glfwWindowShouldClose(window))
 	{
-		// ÔÚÃ¿Ò»Ö¡ÖĞ¼ÆËã³öĞÂµÄdeltaTime
+		// åœ¨æ¯ä¸€å¸§ä¸­è®¡ç®—å‡ºæ–°çš„deltaTime
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		// ÊäÈë¿ØÖÆ
+		// è¾“å…¥æ§åˆ¶
 		processInput(window);
 
-		// Çå³ıÑÕÉ«ºÍÉî¶È»º³å
+		// æ¸…é™¤é¢œè‰²å’Œæ·±åº¦ç¼“å†²
 		glClearColor(0.0f, 57.0f / 255, 92.0f / 255, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// ÓÃÓÚ´«¸ø¶¥µã×ÅÉ«Æ÷£¬ÀûÓÃ¹«¸æ°å¼¼Êõ»æÖÆÁ£×Ó
+		// ç”¨äºä¼ ç»™é¡¶ç‚¹ç€è‰²å™¨ï¼Œåˆ©ç”¨å…¬å‘Šæ¿æŠ€æœ¯ç»˜åˆ¶ç²’å­
 		glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 ViewMatrix = camera.GetViewMatrix();
 		glm::vec3 CameraPosition = camera.Position;
 		glm::mat4 ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
 
-		// ÏûÍö¶àÉÙÁ£×Ó£¬²úÉú¶àÉÙÁ£×Ó
+		// æ¶ˆäº¡å¤šå°‘ç²’å­ï¼Œäº§ç”Ÿå¤šå°‘ç²’å­
 		int newparticles = deltaTime / life * MaxParticles;
 
 		for (int i = 0; i<newparticles; i++) {
 			int particleIndex = FindUnusedParticle();
 			ParticlesContainer[particleIndex].life = life;
-			glm::vec3 maindir = glm::vec3(0.0f, 10.0f, 0.0f); //Ö÷Òª·½Ïò
-			//²úÉúËæ»úµÄÎ»ÖÃÆ«²î
+			glm::vec3 maindir = glm::vec3(0.0f, 10.0f, 0.0f); //ä¸»è¦æ–¹å‘
+			//äº§ç”Ÿéšæœºçš„ä½ç½®åå·®
 			glm::vec3 randomdOffset = glm::vec3(
 				(rand() % 2000 - 1000.0f) / 1500.0f, //[-0.333, 0.333]
 				(rand() % 2000 - 1000.0f) / 1500.0f,
 				(rand() % 2000 - 1000.0f) / 1500.0f
 			);
-			ParticlesContainer[particleIndex].pos = startPos + randomdOffset; //Á£×ÓÆğµã
+			ParticlesContainer[particleIndex].pos = startPos + randomdOffset; //ç²’å­èµ·ç‚¹
 			ParticlesContainer[particleIndex].speed = (endPos - startPos) / life;
 
-			// ²úÉúËæ»úµÄÑÕÉ«¡¢Í¸Ã÷¶È¡¢´óĞ¡
+			// äº§ç”Ÿéšæœºçš„é¢œè‰²ã€é€æ˜åº¦ã€å¤§å°
 			ParticlesContainer[particleIndex].r = rand() % 256; 
 			ParticlesContainer[particleIndex].g = rand() % 256;
 			ParticlesContainer[particleIndex].b = rand() % 256;
@@ -189,16 +189,16 @@ int main()
 			ParticlesContainer[particleIndex].size = (rand() % 1000) / 50000 + 0.04f; //[0.04, 0.06]
 		}
 
-		// Ä£ÄâËùÓĞµÄÁ£×Ó
+		// æ¨¡æ‹Ÿæ‰€æœ‰çš„ç²’å­
 		int ParticlesCount = 0;
 		for (int i = 0; i<MaxParticles; i++) {
-			Particle& p = ParticlesContainer[i]; // ÒıÓÃ
+			Particle& p = ParticlesContainer[i]; // å¼•ç”¨
 			if (p.life > 0.0f) {
 				p.life -= deltaTime;
 				if (p.life > 0.0f) {
 					p.pos += p.speed * (float)deltaTime;
 					p.cameradistance = glm::length(p.pos - CameraPosition);
-					//Ìî³äÊı¾İ
+					//å¡«å……æ•°æ®
 					particle_position_size_data[4 * ParticlesCount + 0] = p.pos.x;
 					particle_position_size_data[4 * ParticlesCount + 1] = p.pos.y;
 					particle_position_size_data[4 * ParticlesCount + 2] = p.pos.z;
@@ -209,7 +209,7 @@ int main()
 					particle_color_data[4 * ParticlesCount + 3] = p.a;
 				}
 				else {
-					//ÒÑ¾­ÏûÍöµÄÁ£×Ó£¬ÔÚµ÷ÓÃSortParticles()Ö®ºó£¬»á±»·ÅÔÚÊı×éµÄ×îºó
+					//å·²ç»æ¶ˆäº¡çš„ç²’å­ï¼Œåœ¨è°ƒç”¨SortParticles()ä¹‹åï¼Œä¼šè¢«æ”¾åœ¨æ•°ç»„çš„æœ€å
 					p.cameradistance = -1.0f;
 				}
 				ParticlesCount++;
@@ -218,7 +218,7 @@ int main()
 
 		SortParticles();
 
-		//¿ªÆô»ìºÏ
+		//å¼€å¯æ··åˆ
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -228,9 +228,9 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, particleTexture);
 		shader.SetInt("myTextureSampler", 0);
 
-		// ÉãÏñÍ·µÄÓÒ·½Ïò
+		// æ‘„åƒå¤´çš„å³æ–¹å‘
 		shader.SetVec3("CameraRight_worldspace", ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]);
-		// ÉãÏñÍ·µÄÉÏ·½Ïò
+		// æ‘„åƒå¤´çš„ä¸Šæ–¹å‘
 		shader.SetVec3("CameraUp_worldspace", ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]);
 		shader.SetMat4("VP", ViewProjectionMatrix);
 
